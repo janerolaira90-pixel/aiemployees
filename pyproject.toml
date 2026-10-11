@@ -1,0 +1,22 @@
+[project]
+name = "eunaria-ai-workforce"
+version = "0.1.0"
+description = "Eunaria Digital Marketing Services — 14 coordinated AI employees managed through Telegram"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic==1.13.0",
+    "httpx>=0.27,<1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["eunaria", "eunaria.agents", "eunaria.integrations", "eunaria.tools"]

@@ -1,0 +1,7 @@
+services:
+  eunaria:
+    build: .
+    restart: unless-stopped        # restarts after crashes/reboots; tasks resume from SQLite
+    env_file: .env
+    volumes:
+      - ./data:/app/data           # persistent task database

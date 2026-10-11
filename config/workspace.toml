@@ -1,0 +1,93 @@
+# Eunaria workspace map: clients and the Notion databases the AI employees may use.
+#
+# Mapped from the Phase 1 audit of the "Justine Janerol's Notion" workspace (2026-10-11).
+# Values are Notion *database* IDs; the Notion adapter resolves each to its data source
+# at runtime. Prefix a value with "ds:" to give a data source ID directly.
+#
+# Client separation: an agent working on a task for client X can only read and write
+# the databases listed under [clients.X] (plus [shared] for Eunaria-internal tasks).
+#
+# Missing roles are noted inline. Databases marked "TO CREATE" are proposed in
+# docs/NOTION_SCHEMA.md and are only created after the owner approves.
+
+[shared.data_sources]
+lead_pipeline = "3b7430f397cc4d6abb3dccb50c58be3b"       # 📌 Lead Pipeline Tracker (Leo, Grace)
+# master_tasks = ""                                       # TO CREATE: Master Task Tracker (Maya, Atlas)
+# video_performance = ""                                  # TO CREATE: Video Performance Reports (Victor)
+# creative_production = ""                                # TO CREATE: Creative Production (Enzo)
+
+[clients.eunaria]
+name = "Eunaria"
+notion_page = "3be32b2a73cb80ad9617fd09b7cd92ff"         # Eunaria's Marketing Dashboard
+notes = "Internal brand. Luxurious, minimal, elegant, strategic, professional, understated."
+[clients.eunaria.data_sources]
+content_ideas = "47132b2a73cb82c885a701af3877fe29"
+content_calendar = "54732b2a73cb8339bf1d81352a5f4657"
+growth_tracker = "c3e32b2a73cb834bbaf401e9fe69d6bf"
+
+[clients.nula]
+name = "nu.la"
+aliases = ["nula", "nu la", "nu.la med aesthetics"]
+notion_page = "33b32b2a73cb80289e92e1a44a101a5f"
+notes = "Medical aesthetics clinic. Client since 2026-03-30 (6-month engagement)."
+[clients.nula.data_sources]
+content_ideas = "33b32b2a73cb81c69d76e184453ac3e4"
+content_calendar = "33b32b2a73cb810db366d3918035046a"
+stories_calendar = "33e32b2a73cb80999a1ac8ced2f32b57"
+ad_creatives = "33e32b2a73cb808e977deb74b1d97d8a"
+taskboard = "33b32b2a73cb80689df4e2c6934f0816"
+growth_tracker = "33b32b2a73cb81b9a777c493384fa73f"
+
+[clients.inoue]
+name = "Inoue"
+notion_page = "37c32b2a73cb801d85f9cbdd38fab444"
+[clients.inoue.data_sources]
+content_ideas = "e7532b2a73cb83479fb081ebd81c3799"
+content_calendar = "fee32b2a73cb8232ba4b01a821e68085"     # "Feed Content Calendar"
+stories_calendar = "87732b2a73cb82ddbdbc812d1e4af08c"
+tiktok_calendar = "a1d32b2a73cb835088bc81d9a5e3e84a"
+growth_tracker = "6f732b2a73cb827db4a5016f8c2e5506"
+
+[clients.locaskin]
+name = "LocaSkin"
+notion_page = "33b32b2a73cb80f9a977cea78fffc1c6"
+[clients.locaskin.data_sources]
+content_ideas = "33b32b2a73cb81a4b5f3d9b0e0d63bf1"
+content_calendar = "33b32b2a73cb818dbae4f552a39400e0"
+growth_tracker = "33b32b2a73cb818da584ee33dcfc7a27"
+
+[clients.escalera]
+name = "Escalera"
+notion_page = "34332b2a73cb8007953cd3d174beb4cf"
+[clients.escalera.data_sources]
+content_calendar = "34332b2a73cb819f8c6ffed6dd22e1a5"
+stories_calendar = "34332b2a73cb812ab5ddda47fcae484a"
+growth_tracker = "34332b2a73cb814c8195eb373be3bd8f"
+
+[clients.asuk]
+name = "Asuk"
+notion_page = "34332b2a73cb80b8a7d5c8d3afeddf83"
+[clients.asuk.data_sources]
+content_calendar = "34332b2a73cb8145905bf92d20c58bee"
+stories_calendar = "34332b2a73cb81b39af4fdaea895d8b7"
+growth_tracker = "34332b2a73cb8162aa33e4d128cf6de6"
+
+[clients.noah_eve]
+name = "Noah & Eve"
+aliases = ["noah and eve", "noah eve"]
+notion_page = "30332b2a73cb805790f8c78d7db28428"
+[clients.noah_eve.data_sources]
+content_calendar = "ds:30332b2a-73cb-81ea-9493-000b65f97318"
+stories_calendar = "33e32b2a73cb803da0dccd37cae966dc"
+growth_tracker = "30332b2a73cb8133a8efe4350a3864e2"
+
+[clients.justine]
+name = "Justine"
+auto_detect = false                                        # the founder's name appears in many requests
+aliases = ["justine personal brand", "justine brand"]
+notion_page = "3bf32b2a73cb8068a511e638f6efa766"
+notes = "Founder personal brand (Justine's Dashboard)."
+[clients.justine.data_sources]
+content_ideas = "1e732b2a73cb83c286f8013b9180db30"
+content_calendar = "3d932b2a73cb838693aa01b84174153d"
+growth_tracker = "68b32b2a73cb82c7aaeb81b2db0f40bb"
