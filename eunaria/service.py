@@ -113,7 +113,15 @@ def startup_checks(app: App) -> list[tuple[str, bool, str]]:
     else:
         checks.append(("Notion", False, "not connected yet (NOTION_TOKEN)"))
     checks.append(("GoHighLevel", app.ghl is not None, "configured" if app.ghl else "not connected yet"))
-    checks.append(("Meta", app.meta is not None, "configured" if app.meta else "not connected yet"))
+    if app.meta:
+        try:
+            found = app.meta.discover_assets()
+            checks.append(("Meta", True, f"{len(found['pages'])} page(s), {len(found['instagram'])} Instagram, "
+                                         f"{len(found['ads'])} ad account(s)"))
+        except Exception as exc:  # noqa: BLE001
+            checks.append(("Meta", False, str(exc)[:300]))
+    else:
+        checks.append(("Meta", False, "not connected yet (META_ACCESS_TOKEN)"))
     return checks
 
 

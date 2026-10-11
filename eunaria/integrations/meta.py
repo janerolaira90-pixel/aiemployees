@@ -47,6 +47,18 @@ class MetaClient:
         data = self._get("/me/permissions")
         return [p["permission"] for p in data.get("data", []) if p.get("status") == "granted"]
 
+    def discover_assets(self) -> dict[str, list[dict]]:
+        """Assets the token can see (for a system user: exactly the assets assigned to it)."""
+        if getattr(self, "_assets", None) is None:
+            pages = self.list_pages()
+            ig = [{"id": p["instagram_business_account"]["id"], "page": p.get("name")}
+                  for p in pages if p.get("instagram_business_account")]
+            ads = self._get("/me/adaccounts", {"fields": "id,name,account_status", "limit": 100}).get("data", [])
+            self._assets = {"pages": [{"id": p["id"], "name": p.get("name")} for p in pages],
+                            "instagram": ig,
+                            "ads": [{"id": a["id"], "name": a.get("name")} for a in ads]}
+        return self._assets
+
     def list_pages(self) -> list[dict]:
         return self._get("/me/accounts", {"fields": "id,name,instagram_business_account"}).get("data", [])
 
