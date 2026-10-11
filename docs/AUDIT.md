@@ -47,3 +47,17 @@ Also present: "Eunaria's Digital Marketing / Admin Content Dashboard" (older Eun
 - **Creative Production** (Enzo)
 
 Proposed schemas are in `docs/NOTION_SCHEMA.md`.
+
+## Update — Notion fields added (2026-10-11, owner approved)
+
+Added additively (nothing renamed or removed):
+
+- **Content Ideas** (Eunaria, nu.la, Inoue, Justine): Platform, Content Pillar, Funnel Stage, Content Format,
+  Target Audience, Hook, Objective, Creative Direction, Priority, Idea Status, Suggested Publish Date,
+  Assigned AI, Campaign.
+- **Content Calendar** (Eunaria, nu.la, Inoue Feed, Justine, Noah & Eve): Hook, CTA, Hashtags, Platform,
+  Revision Notes, Assigned AI.
+
+Found in Notion's trash, so unmapped in `config/workspace.toml` until restored: LocaSkin Content Ideas and
+Content Calendar, Escalera Content Calendar, Asuk Content Calendar. (They also received the new calendar
+fields before the trash status was noticed; harmless.)

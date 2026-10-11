@@ -51,24 +51,23 @@ growth_tracker = "6f732b2a73cb827db4a5016f8c2e5506"
 [clients.locaskin]
 name = "LocaSkin"
 notion_page = "33b32b2a73cb80f9a977cea78fffc1c6"
+notes = "Content Ideas and Content Calendar are in Notion's trash (2026-10-11); not mapped until restored."
 [clients.locaskin.data_sources]
-content_ideas = "33b32b2a73cb81a4b5f3d9b0e0d63bf1"
-content_calendar = "33b32b2a73cb818dbae4f552a39400e0"
 growth_tracker = "33b32b2a73cb818da584ee33dcfc7a27"
 
 [clients.escalera]
 name = "Escalera"
 notion_page = "34332b2a73cb8007953cd3d174beb4cf"
+notes = "Content Calendar is in Notion's trash (2026-10-11); not mapped until restored."
 [clients.escalera.data_sources]
-content_calendar = "34332b2a73cb819f8c6ffed6dd22e1a5"
 stories_calendar = "34332b2a73cb812ab5ddda47fcae484a"
 growth_tracker = "34332b2a73cb814c8195eb373be3bd8f"
 
 [clients.asuk]
 name = "Asuk"
 notion_page = "34332b2a73cb80b8a7d5c8d3afeddf83"
+notes = "Content Calendar is in Notion's trash (2026-10-11); not mapped until restored."
 [clients.asuk.data_sources]
-content_calendar = "34332b2a73cb8145905bf92d20c58bee"
 stories_calendar = "34332b2a73cb81b39af4fdaea895d8b7"
 growth_tracker = "34332b2a73cb8162aa33e4d128cf6de6"
 
