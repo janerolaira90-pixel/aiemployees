@@ -81,3 +81,36 @@ def test_pasted_secrets_are_cleaned(monkeypatch):
     monkeypatch.setenv("TELEGRAM_ADMIN_USER_IDS", " 5950299525 ")
     s = Settings.from_env(dotenv=None)
     assert s.anthropic_api_key == "sk-ant-test" and s.telegram_admin_ids == frozenset({5950299525})
+
+
+def test_rejected_optional_features_fall_back_to_simpler_request():
+    bodies = []
+
+    def handler(request):
+        body = json.loads(request.content)
+        bodies.append(body)
+        if "fallbacks" in body:
+            return httpx2.Response(400, json={"type": "error", "error": {"type": "invalid_request_error",
+                                                                          "message": "fallbacks: not permitted"}})
+        return httpx2.Response(200, json=RESPONSE)
+
+    llm = _llm(handler)
+    resp = llm.create(system="s", messages=[{"role": "user", "content": "x"}], tools=[], effort="high", agent_id="a")
+    assert resp.stop_reason == "tool_use"
+    assert "fallbacks" in bodies[0] and "fallbacks" not in bodies[1]
+    assert bodies[1]["thinking"] == {"type": "adaptive"}       # keeps everything else
+    llm.create(system="s", messages=[{"role": "user", "content": "x"}], tools=[], effort="high", agent_id="a")
+    assert len(bodies) == 3 and "fallbacks" not in bodies[2]   # remembered; no repeat 400
+
+
+def test_out_of_credit_is_reported_plainly_and_not_retried():
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        return httpx2.Response(400, json={"type": "error", "error": {"type": "invalid_request_error",
+            "message": "Your credit balance is too low to access the Anthropic API."}})
+    with pytest.raises(PermanentLLMError) as info:
+        _llm(handler).create(system="s", messages=[{"role": "user", "content": "x"}], tools=[], effort="low",
+                             agent_id="ava")
+    assert "out of credit" in str(info.value) and len(calls) == 1

@@ -94,8 +94,10 @@ def startup_checks(app: App) -> list[tuple[str, bool, str]]:
     checks = [("Telegram", True, "connected")]
     if isinstance(app.llm, ClaudeLLM):
         try:
-            app.llm.client.models.retrieve(app.settings.model)
-            checks.append(("Claude", True, app.settings.model))
+            app.llm.create(system="Health check.", messages=[{"role": "user", "content": "Reply with OK."}],
+                           tools=[], effort="low", agent_id="atlas")
+            profile = getattr(app.llm, "_profile", "full")
+            checks.append(("Claude", True, app.settings.model + ("" if profile == "full" else f" (mode: {profile})")))
         except Exception as exc:  # noqa: BLE001
             checks.append(("Claude", False, f"{type(exc).__name__}: {describe_cause(exc)}"))
     else:

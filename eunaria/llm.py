@@ -63,34 +63,57 @@ class ClaudeLLM:
         self.model = model
         self.max_tokens = max_tokens
 
-    def create(self, *, system: str, messages: list[dict], tools: list[dict], effort: str,
-               agent_id: str) -> LLMResponse:
-        kwargs: dict[str, Any] = dict(
-            model=self.model,
-            max_tokens=self.max_tokens,
-            system=system,
-            messages=messages,
-            tools=tools,
-            thinking={"type": "adaptive"},
-            output_config={"effort": effort},
-            cache_control={"type": "ephemeral"},
-        )
-        if self.model in ("claude-opus-5-5", "claude-fable-5-1", "claude-opus-5", "claude-sonnet-5-5"):
+    # Request profiles, richest first. If the API rejects an optional feature (400), the next
+    # profile drops it; the first profile that works is remembered for the rest of the process.
+    PROFILES = ("full", "no_fallback", "basic")
+
+    def _kwargs(self, profile: str, system, messages, tools, effort) -> dict[str, Any]:
+        kwargs: dict[str, Any] = dict(model=self.model, max_tokens=self.max_tokens, system=system,
+                                      messages=messages, tools=tools)
+        if profile in ("full", "no_fallback"):
+            kwargs["thinking"] = {"type": "adaptive"}
+            kwargs["output_config"] = {"effort": effort}
+            kwargs["cache_control"] = {"type": "ephemeral"}
+        if profile == "full" and self.model in ("claude-opus-5-5", "claude-fable-5-1", "claude-opus-5",
+                                                "claude-sonnet-5-5"):
             # Server-side fallback: a classifier false positive on benign marketing work
             # retries on the recommended model instead of failing the task.
             kwargs["betas"] = ["server-side-fallback-2026-07-01"]
             kwargs["fallbacks"] = "default"
+        return kwargs
+
+    def create(self, *, system: str, messages: list[dict], tools: list[dict], effort: str,
+               agent_id: str) -> LLMResponse:
         a = self._anthropic
-        try:
-            if "fallbacks" in kwargs:
-                resp = self.client.beta.messages.create(**kwargs)
-            else:
-                resp = self.client.messages.create(**kwargs)
-        except (a.BadRequestError, a.AuthenticationError, a.PermissionDeniedError, a.NotFoundError) as exc:
-            raise PermanentLLMError(f"{type(exc).__name__}: {exc.message}") from exc
-        except a.APIConnectionError as exc:
-            # The SDK's message is just "Connection error."; the cause says what actually failed.
-            raise ConnectionError(f"{type(exc).__name__}: {describe_cause(exc)}") from exc
+        start = self.PROFILES.index(getattr(self, "_profile", "full"))
+        last_error: Exception | None = None
+        for profile in self.PROFILES[start:]:
+            kwargs = self._kwargs(profile, system, messages, tools, effort)
+            try:
+                if "fallbacks" in kwargs:
+                    resp = self.client.beta.messages.create(**kwargs)
+                else:
+                    resp = self.client.messages.create(**kwargs)
+            except a.BadRequestError as exc:
+                if "credit balance" in exc.message.lower():
+                    raise PermanentLLMError(
+                        "Anthropic account is out of credit. Add credit at console.anthropic.com → "
+                        "Plans & Billing, then reply 'retry' to this message.") from exc
+                last_error = exc
+                log.warning("Claude rejected request profile %r: %s", profile, exc.message)
+                continue
+            except (a.AuthenticationError, a.PermissionDeniedError, a.NotFoundError) as exc:
+                raise PermanentLLMError(f"{type(exc).__name__}: {exc.message}") from exc
+            except a.APIConnectionError as exc:
+                # The SDK's message is just "Connection error."; the cause says what actually failed.
+                raise ConnectionError(f"{type(exc).__name__}: {describe_cause(exc)}") from exc
+            if profile != getattr(self, "_profile", "full"):
+                log.warning("Using Claude request profile %r from now on", profile)
+                self._profile = profile
+            break
+        else:
+            msg = getattr(last_error, "message", str(last_error))
+            raise PermanentLLMError(f"BadRequestError: {msg}") from last_error
         # RateLimitError / 5xx / connection errors propagate and the job queue retries with backoff.
         usage = resp.usage.model_dump() if resp.usage else {}
         usage = {k: v for k, v in usage.items() if isinstance(v, int)}
