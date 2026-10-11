@@ -40,7 +40,7 @@
 
 ### Orchestration layer (Claude)
 
-- **Model:** `claude-opus-5-5` with adaptive thinking. Effort is set per employee: `high` for strategy, creative, and coordination; `medium` for reporting roles (Grace, Ava, Maya).
+- **Models by cost tier:** Atlas uses `claude-opus-5-5` (effort `high`). The ten creative and specialist employees use `claude-sonnet-5-5` (effort `medium`, half the per-token price). Grace, Ava and Maya, who do reporting, use `claude-haiku-5-5` (effort `low`). All use adaptive thinking. Override with `EUNARIA_MODEL`, `EUNARIA_SPECIALIST_MODEL`, `EUNARIA_LIGHT_MODEL`. Web search is capped at `EUNARIA_WEB_SEARCH_MAX_USES` (default 3) per request.
 - **Refusal fallback:** requests opt into server-side fallback (`fallbacks: "default"`) so that a safety-classifier false positive on legitimate aesthetic-clinic marketing retries on the recommended model instead of failing the task.
 - **Prompt caching:** system prompts and tool lists are byte-stable per employee. Volatile context (date, task brief) goes in the first user message.
 - **Append-only transcripts:** every assistant response, including thinking blocks, is stored verbatim and replayed unchanged.

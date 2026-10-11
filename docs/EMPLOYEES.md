@@ -6,22 +6,22 @@ for the exact action before it runs.
 
 ## Summary map
 
-| # | Employee | Department | Notion | GHL | Meta | Web research | Delegates | Effort |
+| # | Employee | Department | Notion | GHL | Meta | Web research | Delegates | Model · effort |
 |---|---|---|---|---|---|---|---|---|
-| 01 | **Sofia** — Social Media Strategist | Marketing & Content | read/write | — | — | yes | — | high |
-| 02 | **Victor** — Video Performance Strategist | Marketing & Content | read/write | — | read | — | — | high |
-| 03 | **Chloe** — Content Ideas & Content Planner | Marketing & Content | read/write | — | — | yes | — | high |
-| 04 | **Clara** — Social Media Copywriter | Marketing & Content | read/write | — | — | — | — | high |
-| 05 | **Theo** — Talking-Head Scriptwriter | Marketing & Content | read/write | — | — | yes | — | high |
-| 06 | **Luca** — Video Structure & Sequence Strategist | Marketing & Content | read/write | — | — | — | — | high |
-| 07 | **Gabriel** — GHL Automation Architect | GHL & Conversion Systems | read/write | read | — | — | — | high |
-| 08 | **Grace** — GHL Operations Specialist | GHL & Conversion Systems | read | read + 🔐 write | — | — | — | medium |
-| 09 | **Felix** — Funnel & Landing Page Builder | GHL & Conversion Systems | read/write | read | — | yes | — | high |
-| 10 | **Enzo** — AI Video Editor | Creative Production | read/write | — | — | — | — | high |
-| 11 | **Leo** — Lead Generation & Appointment Setter | Sales & Lead Generation | read/write | read + 🔐 write | — | yes | — | high |
-| 12 | **Ava** — Personal Assistant | Personal & Business Operations | read | — | — | — | — | medium |
-| 13 | **Maya** — Online Business Manager (OBM) | Personal & Business Operations | read | — | — | — | — | medium |
-| 14 | **Atlas** — Chief of Staff | Executive Leadership | read | — | — | — | yes | high |
+| 01 | **Sofia** — Social Media Strategist | Marketing & Content | read/write | — | — | yes | — | claude-sonnet-5-5 · medium |
+| 02 | **Victor** — Video Performance Strategist | Marketing & Content | read/write | — | read | — | — | claude-sonnet-5-5 · medium |
+| 03 | **Chloe** — Content Ideas & Content Planner | Marketing & Content | read/write | — | — | yes | — | claude-sonnet-5-5 · medium |
+| 04 | **Clara** — Social Media Copywriter | Marketing & Content | read/write | — | — | — | — | claude-sonnet-5-5 · medium |
+| 05 | **Theo** — Talking-Head Scriptwriter | Marketing & Content | read/write | — | — | yes | — | claude-sonnet-5-5 · medium |
+| 06 | **Luca** — Video Structure & Sequence Strategist | Marketing & Content | read/write | — | — | — | — | claude-sonnet-5-5 · medium |
+| 07 | **Gabriel** — GHL Automation Architect | GHL & Conversion Systems | read/write | read | — | — | — | claude-sonnet-5-5 · medium |
+| 08 | **Grace** — GHL Operations Specialist | GHL & Conversion Systems | read | read + 🔐 write | — | — | — | claude-haiku-5-5 · low |
+| 09 | **Felix** — Funnel & Landing Page Builder | GHL & Conversion Systems | read/write | read | — | yes | — | claude-sonnet-5-5 · medium |
+| 10 | **Enzo** — AI Video Editor | Creative Production | read/write | — | — | — | — | claude-sonnet-5-5 · medium |
+| 11 | **Leo** — Lead Generation & Appointment Setter | Sales & Lead Generation | read/write | read + 🔐 write | — | yes | — | claude-sonnet-5-5 · medium |
+| 12 | **Ava** — Personal Assistant | Personal & Business Operations | read | — | — | — | — | claude-haiku-5-5 · low |
+| 13 | **Maya** — Online Business Manager (OBM) | Personal & Business Operations | read | — | — | — | — | claude-haiku-5-5 · low |
+| 14 | **Atlas** — Chief of Staff | Executive Leadership | read | — | — | — | yes | claude-opus-5-5 · high |
 
 ## 01. Sofia — Social Media Strategist
 

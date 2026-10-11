@@ -50,7 +50,10 @@ def _ids(value: str | None) -> frozenset[int]:
 @dataclass(frozen=True)
 class Settings:
     anthropic_api_key: str | None = None
-    model: str = "claude-opus-5-5"
+    model: str = "claude-opus-5-5"                 # Atlas (lead)
+    specialist_model: str = "claude-sonnet-5-5"    # creative and specialist employees
+    light_model: str = "claude-haiku-5-5"          # reporting employees (Grace, Ava, Maya)
+    web_search_max_uses: int = 3
     telegram_bot_token: str | None = None
     telegram_admin_ids: frozenset[int] = frozenset()
     notion_token: str | None = None
@@ -90,6 +93,9 @@ class Settings:
         return cls(
             anthropic_api_key=env("ANTHROPIC_API_KEY") or None,
             model=env("EUNARIA_MODEL") or "claude-opus-5-5",
+            specialist_model=env("EUNARIA_SPECIALIST_MODEL") or "claude-sonnet-5-5",
+            light_model=env("EUNARIA_LIGHT_MODEL") or "claude-haiku-5-5",
+            web_search_max_uses=int(env("EUNARIA_WEB_SEARCH_MAX_USES") or 3),
             telegram_bot_token=env("TELEGRAM_BOT_TOKEN") or None,
             telegram_admin_ids=_ids(env("TELEGRAM_ADMIN_USER_IDS")),
             notion_token=env("NOTION_TOKEN") or None,
@@ -112,6 +118,9 @@ class Settings:
             daily_cost_limit_usd=float(env("EUNARIA_DAILY_COST_LIMIT_USD") or 25.0),
             max_tool_iterations=int(env("EUNARIA_MAX_TOOL_ITERATIONS") or 30),
         )
+
+    def model_for(self, tier: str) -> str:
+        return {"lead": self.model, "light": self.light_model}.get(tier, self.specialist_model)
 
     def secret_values(self) -> list[str]:
         vals = [self.anthropic_api_key, self.telegram_bot_token, self.notion_token,

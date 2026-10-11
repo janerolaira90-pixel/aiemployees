@@ -43,8 +43,8 @@ class ScriptedLLM:
     def add(self, agent_id: str, *turns: Turn) -> None:
         self.scripts.setdefault(agent_id, []).extend(turns)
 
-    def create(self, *, system, messages, tools, effort, agent_id) -> LLMResponse:
-        self.calls.append({"agent": agent_id, "messages": copy.deepcopy(messages),
+    def create(self, *, system, messages, tools, effort, agent_id, model=None) -> LLMResponse:
+        self.calls.append({"agent": agent_id, "model": model, "messages": copy.deepcopy(messages),
                            "tools": [t["name"] for t in tools], "effort": effort, "system": system})
         queue = self.scripts.get(agent_id) or []
         if not queue:

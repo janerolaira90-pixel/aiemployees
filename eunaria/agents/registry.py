@@ -36,7 +36,8 @@ class Agent:
     kpis: tuple[str, ...] = ()
     collaborators: tuple[str, ...] = ()
     web_search: bool = False
-    effort: str = "high"
+    effort: str = "medium"
+    tier: str = "specialist"     # lead → EUNARIA_MODEL · specialist → EUNARIA_SPECIALIST_MODEL · light → EUNARIA_LIGHT_MODEL
     aliases: tuple[str, ...] = field(default_factory=tuple)
 
     @property
@@ -85,7 +86,6 @@ AGENTS: tuple[Agent, ...] = (
                     "Sample size is too small for a conclusion."),
         kpis=("Recommendations adopted", "Lift on tested variables", "Report on-time rate"),
         collaborators=("sofia", "luca", "enzo"),
-        effort="high",
     ),
     Agent(
         id="chloe", number=3, name="Chloe", title="Content Ideas & Content Planner", department="Marketing & Content",
@@ -195,7 +195,8 @@ AGENTS: tuple[Agent, ...] = (
         escalation=("Possible attribution or data-integrity issue.", "Bulk change needed."),
         kpis=("Report delivered daily", "Overdue follow-ups trend", "Data-issue backlog"),
         collaborators=("leo", "gabriel"),
-        effort="medium",
+        effort="low",
+        tier="light",
     ),
     Agent(
         id="felix", number=9, name="Felix", title="Funnel & Landing Page Builder", department="GHL & Conversion Systems",
@@ -271,7 +272,8 @@ AGENTS: tuple[Agent, ...] = (
         escalation=("Conflicting commitments.",),
         kpis=("Briefing delivered on time", "Decisions cleared", "Missed reminders (target 0)"),
         collaborators=("atlas", "maya"),
-        effort="medium",
+        effort="low",
+        tier="light",
     ),
     Agent(
         id="maya", number=13, name="Maya", title="Online Business Manager (OBM)", department="Personal & Business Operations",
@@ -288,7 +290,8 @@ AGENTS: tuple[Agent, ...] = (
         escalation=("A task overdue twice or blocked > 2 days.", "Resource conflict between projects."),
         kpis=("On-time delivery rate", "Overdue count trend", "Blocked-time"),
         collaborators=("atlas", "ava"),
-        effort="medium",
+        effort="low",
+        tier="light",
     ),
     Agent(
         id="atlas", number=14, name="Atlas", title="Chief of Staff", department="Executive Leadership",
@@ -309,6 +312,7 @@ AGENTS: tuple[Agent, ...] = (
         collaborators=("sofia", "victor", "chloe", "clara", "theo", "luca", "gabriel", "grace", "felix",
                        "enzo", "leo", "ava", "maya"),
         effort="high",
+        tier="lead",
         aliases=("chief", "cos"),
     ),
 )

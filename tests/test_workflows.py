@@ -230,3 +230,17 @@ def test_direct_chloe_request_implies_verified_notion_records():
     assert implied_requirements("chloe", "brainstorm 20 ideas", "nula") == []        # not a Notion request
     assert implied_requirements("chloe", "add 20 ideas to Notion", None) == []       # client unknown
     assert implied_requirements("sofia", "add 20 ideas to Notion", "nula") == []
+
+
+def test_each_employee_runs_on_its_cost_tier(make_app):
+    llm = ScriptedLLM()
+    for agent in ("atlas", "chloe", "maya"):
+        llm.add(agent, [tool_use("submit_result", outcome="completed", summary="ok")])
+    app = make_app(llm)
+    bot = Bot(app)
+    for i, text in enumerate(["Atlas, status please", "Chloe, brainstorm hooks", "Maya, what is overdue?"]):
+        bot.handle_update(owner_msg(text, update_id=10 + i))
+    drain(app)
+    used = {c["agent"]: (c["model"], c["effort"]) for c in llm.calls}
+    assert used == {"atlas": ("claude-opus-5-5", "high"), "chloe": ("claude-sonnet-5-5", "medium"),
+                    "maya": ("claude-haiku-5-5", "low")}

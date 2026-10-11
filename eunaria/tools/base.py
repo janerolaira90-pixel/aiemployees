@@ -58,10 +58,10 @@ def tool(name: str, description: str, properties: dict, required: list[str] | No
     return deco
 
 
-def definitions_for(agent: "Agent", web_search: bool) -> list[dict]:
+def definitions_for(agent: "Agent", web_search: bool, max_searches: int = 3) -> list[dict]:
     defs = [REGISTRY[n].definition() for n in agent.tools if n in REGISTRY]
     if web_search and agent.web_search:
-        defs.append({"type": "web_search_20260209", "name": "web_search", "max_uses": 8})
+        defs.append({"type": "web_search_20260209", "name": "web_search", "max_uses": max_searches})
     return defs
 
 

@@ -119,12 +119,13 @@ def _run(app: "App", task_id: int) -> None:
 
     app.tasks.set_status(task_id, "running", message=f"{agent.name} working")
     system = system_prompt(agent)
-    tools = definitions_for(agent, app.settings.enable_web_search)
+    tools = definitions_for(agent, app.settings.enable_web_search, app.settings.web_search_max_uses)
+    model = app.settings.model_for(agent.tier)
     nudges = 0
     for _ in range(app.settings.max_tool_iterations):
         try:
             resp = app.llm.create(system=system, messages=convo.load(task_id), tools=tools,
-                                  effort=agent.effort, agent_id=agent.id)
+                                  effort=agent.effort, agent_id=agent.id, model=model)
         except PermanentLLMError as exc:
             fail_task(app, task_id, f"Could not call Claude: {exc}")
             return

@@ -49,7 +49,7 @@ class LLM(Protocol):
     model: str
 
     def create(self, *, system: str, messages: list[dict], tools: list[dict], effort: str,
-               agent_id: str) -> LLMResponse: ...
+               agent_id: str, model: str | None = None) -> LLMResponse: ...
 
 
 class ClaudeLLM:
@@ -67,14 +67,14 @@ class ClaudeLLM:
     # profile drops it; the first profile that works is remembered for the rest of the process.
     PROFILES = ("full", "no_fallback", "basic")
 
-    def _kwargs(self, profile: str, system, messages, tools, effort) -> dict[str, Any]:
-        kwargs: dict[str, Any] = dict(model=self.model, max_tokens=self.max_tokens, system=system,
+    def _kwargs(self, profile: str, model: str, system, messages, tools, effort) -> dict[str, Any]:
+        kwargs: dict[str, Any] = dict(model=model, max_tokens=self.max_tokens, system=system,
                                       messages=messages, tools=tools)
         if profile in ("full", "no_fallback"):
             kwargs["thinking"] = {"type": "adaptive"}
             kwargs["output_config"] = {"effort": effort}
             kwargs["cache_control"] = {"type": "ephemeral"}
-        if profile == "full" and self.model in ("claude-opus-5-5", "claude-fable-5-1", "claude-opus-5",
+        if profile == "full" and model in ("claude-opus-5-5", "claude-fable-5-1", "claude-opus-5",
                                                 "claude-sonnet-5-5"):
             # Server-side fallback: a classifier false positive on benign marketing work
             # retries on the recommended model instead of failing the task.
@@ -83,12 +83,14 @@ class ClaudeLLM:
         return kwargs
 
     def create(self, *, system: str, messages: list[dict], tools: list[dict], effort: str,
-               agent_id: str) -> LLMResponse:
+               agent_id: str, model: str | None = None) -> LLMResponse:
         a = self._anthropic
-        start = self.PROFILES.index(getattr(self, "_profile", "full"))
+        model = model or self.model
+        profiles: dict[str, str] = self.__dict__.setdefault("_profiles", {})
+        start = self.PROFILES.index(profiles.get(model, "full"))
         last_error: Exception | None = None
         for profile in self.PROFILES[start:]:
-            kwargs = self._kwargs(profile, system, messages, tools, effort)
+            kwargs = self._kwargs(profile, model, system, messages, tools, effort)
             try:
                 if "fallbacks" in kwargs:
                     resp = self.client.beta.messages.create(**kwargs)
@@ -107,9 +109,9 @@ class ClaudeLLM:
             except a.APIConnectionError as exc:
                 # The SDK's message is just "Connection error."; the cause says what actually failed.
                 raise ConnectionError(f"{type(exc).__name__}: {describe_cause(exc)}") from exc
-            if profile != getattr(self, "_profile", "full"):
-                log.warning("Using Claude request profile %r from now on", profile)
-                self._profile = profile
+            if profile != profiles.get(model, "full"):
+                log.warning("Using Claude request profile %r for %s from now on", profile, model)
+                profiles[model] = profile
             break
         else:
             msg = getattr(last_error, "message", str(last_error))
@@ -122,7 +124,7 @@ class ClaudeLLM:
             content=[b.model_dump(mode="json", exclude_none=True) for b in resp.content],
             stop_reason=resp.stop_reason,
             usage=usage,
-            model=resp.model or self.model,
+            model=resp.model or model,
             request_id=getattr(resp, "_request_id", None),
             stop_details=stop_details,
         )
