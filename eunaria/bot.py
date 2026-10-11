@@ -259,9 +259,10 @@ class Bot:
 
     def cmd_health(self, chat_id: int, arg: str) -> None:
         app = self.app
-        lines = ["<b>System health</b>"]
-        for k, v in app.integration_status().items():
-            lines.append(f"{'🟢' if v.startswith('configured') or 'admin' in v else '🔴'} {k}: {esc(v)}")
+        from .service import startup_checks
+        lines = ["<b>System health</b> (live checks)"]
+        for name, ok, detail in startup_checks(app):
+            lines.append(f"{'🟢' if ok else '🔴'} {esc(name)}: {esc(detail)}")
         failed = app.db.one("SELECT COUNT(*) n FROM jobs WHERE status='failed' AND finished_at >= ?",
                             (_ago(days=1),))
         lines.append(f"Queue: {app.queue.pending_count()} pending · {failed['n']} failed (24h)")

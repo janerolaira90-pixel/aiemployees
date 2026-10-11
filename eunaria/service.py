@@ -88,6 +88,42 @@ def recover_on_startup(app: App) -> dict:
     return info
 
 
+def startup_checks(app: App) -> list[tuple[str, bool, str]]:
+    """Live checks reported to the owner on every start, so problems show up in Telegram."""
+    from .llm import ClaudeLLM, describe_cause
+    checks = [("Telegram", True, "connected")]
+    if isinstance(app.llm, ClaudeLLM):
+        try:
+            app.llm.client.models.retrieve(app.settings.model)
+            checks.append(("Claude", True, app.settings.model))
+        except Exception as exc:  # noqa: BLE001
+            checks.append(("Claude", False, f"{type(exc).__name__}: {describe_cause(exc)}"))
+    else:
+        checks.append(("Claude", False, "ANTHROPIC_API_KEY is not set"))
+    if app.notion:
+        try:
+            app.notion._req("GET", "/users/me")
+            checks.append(("Notion", True, "token valid"))
+        except Exception as exc:  # noqa: BLE001
+            checks.append(("Notion", False, str(exc)[:300]))
+    else:
+        checks.append(("Notion", False, "not connected yet (NOTION_TOKEN)"))
+    checks.append(("GoHighLevel", app.ghl is not None, "configured" if app.ghl else "not connected yet"))
+    checks.append(("Meta", app.meta is not None, "configured" if app.meta else "not connected yet"))
+    return checks
+
+
+def announce_startup(app: App) -> None:
+    from .integrations.telegram import esc
+    checks = startup_checks(app)
+    for name, ok, detail in checks:
+        log.info("Startup check %s: %s — %s", name, "OK" if ok else "FAIL", detail)
+    if app.owner_chat_id:
+        lines = ["🟢 <b>Eunaria AI team is online</b>"]
+        lines += [f"{'✅' if ok else '⚠️'} {esc(name)}: {esc(detail)}" for name, ok, detail in checks]
+        app.messenger.send(app.owner_chat_id, "\n".join(lines))
+
+
 def run_service(app: App) -> None:
     setup_logging(app, os.environ.get("EUNARIA_LOG_LEVEL", "INFO"))
     s = app.settings
@@ -100,6 +136,7 @@ def run_service(app: App) -> None:
     log.info("Telegram bot @%s ready; admins=%d", me.get("username"), len(s.telegram_admin_ids))
     log.info("Integrations: %s", app.integration_status())
     log.info("Startup recovery: %s", recover_on_startup(app))
+    announce_startup(app)
 
     stop = threading.Event()
     workers = [make_worker(app, f"w{i}-{os.getpid()}") for i in range(s.worker_threads)]

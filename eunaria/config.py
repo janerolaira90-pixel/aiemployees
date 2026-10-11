@@ -79,7 +79,13 @@ class Settings:
     def from_env(cls, dotenv: Path | None = ROOT / ".env") -> "Settings":
         if dotenv is not None:
             load_dotenv(dotenv)
-        env = os.environ.get
+        def env(key: str) -> str | None:
+            # Values pasted into hosting dashboards often carry stray spaces, line breaks, or
+            # quotes. Left in, they make HTTP headers invalid (surfacing as "Connection error").
+            value = os.environ.get(key)
+            if value is None:
+                return None
+            return value.strip().strip('"').strip("'").strip()
         split = lambda k: tuple(v for v in (env(k) or "").replace(" ", "").split(",") if v)  # noqa: E731
         return cls(
             anthropic_api_key=env("ANTHROPIC_API_KEY") or None,

@@ -88,6 +88,9 @@ class ClaudeLLM:
                 resp = self.client.messages.create(**kwargs)
         except (a.BadRequestError, a.AuthenticationError, a.PermissionDeniedError, a.NotFoundError) as exc:
             raise PermanentLLMError(f"{type(exc).__name__}: {exc.message}") from exc
+        except a.APIConnectionError as exc:
+            # The SDK's message is just "Connection error."; the cause says what actually failed.
+            raise ConnectionError(f"{type(exc).__name__}: {describe_cause(exc)}") from exc
         # RateLimitError / 5xx / connection errors propagate and the job queue retries with backoff.
         usage = resp.usage.model_dump() if resp.usage else {}
         usage = {k: v for k, v in usage.items() if isinstance(v, int)}
@@ -100,6 +103,14 @@ class ClaudeLLM:
             request_id=getattr(resp, "_request_id", None),
             stop_details=stop_details,
         )
+
+
+def describe_cause(exc: BaseException) -> str:
+    parts, cur, seen = [str(exc)], exc.__cause__ or exc.__context__, 0
+    while cur is not None and seen < 4:
+        parts.append(f"{type(cur).__name__}: {cur}")
+        cur, seen = cur.__cause__ or cur.__context__, seen + 1
+    return " ← ".join(p for p in parts if p)[:600]
 
 
 class UnconfiguredLLM:

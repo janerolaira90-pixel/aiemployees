@@ -64,3 +64,20 @@ def test_bad_requests_are_permanent_errors():
     with pytest.raises(PermanentLLMError):
         _llm(handler).create(system="s", messages=[{"role": "user", "content": "x"}], tools=[], effort="low",
                              agent_id="ava")
+
+
+def test_connection_errors_report_their_real_cause():
+    def handler(request):
+        raise httpx2.ConnectError("Name or service not known")
+    with pytest.raises(ConnectionError) as info:
+        _llm(handler).create(system="s", messages=[{"role": "user", "content": "x"}], tools=[], effort="low",
+                             agent_id="ava")
+    assert "Name or service not known" in str(info.value)
+
+
+def test_pasted_secrets_are_cleaned(monkeypatch):
+    from eunaria.config import Settings
+    monkeypatch.setenv("ANTHROPIC_API_KEY", '  "sk-ant-test"\n')
+    monkeypatch.setenv("TELEGRAM_ADMIN_USER_IDS", " 5950299525 ")
+    s = Settings.from_env(dotenv=None)
+    assert s.anthropic_api_key == "sk-ant-test" and s.telegram_admin_ids == frozenset({5950299525})
