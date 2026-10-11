@@ -7,5 +7,4 @@ COPY eunaria ./eunaria
 COPY config ./config
 RUN useradd --create-home eunaria && mkdir -p /app/data && chown eunaria /app/data
 USER eunaria
-VOLUME ["/app/data"]
 CMD ["python", "-m", "eunaria", "run"]
